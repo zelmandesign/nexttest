@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 interface Item {
-    key: number
-    text: string
+    key: number;
+    text: string;
 }
 
 const TextManager: React.FC = () => {
@@ -10,18 +10,22 @@ const TextManager: React.FC = () => {
     const [items, setItems] = useState<Item[]>([]);  // State for list items
     const [keyCounter, setKeyCounter] = useState(1);  // State for key counter
 
+    const [sortedItems, setSortedItems] = useState<Item[]>([]);  // State for sorted items
+    const [isSorted, setIsSorted] = useState(false);  // State for sorting
+
     const handleAddItem = () => {
         if (inputValue && !items.some(item => item.text === inputValue)) {  // Check if input is not empty and not a duplicate
             const newItem = { key: keyCounter, text: inputValue };
-            setItems([...items, newItem]);  // Add new item to the list
+            const newItems = [...items, newItem];
+            setItems(newItems);  // Add new item to the list
+            setSortedItems([...newItems].sort((a, b) => a.text.length - b.text.length));  // Sort the new list
             setInputValue('');  // Clear input field
             setKeyCounter(keyCounter + 1);  // Increment the key counter
         }
     };
 
-    // Function to log the input value
-    const handleLogInput = () => {
-        console.log(inputValue);
+    const handleSortChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIsSorted(event.target.checked);
     };
 
     return (
@@ -34,13 +38,18 @@ const TextManager: React.FC = () => {
                 onChange={(e) => setInputValue(e.target.value)}  // Update state on input change
             />
             <div className="buttonContainer">
-                <button className="button" onClick={handleAddItem}>Add
-                </button>
-                <button className="button">Sort</button>
-                <button className="button" onClick={handleLogInput}>Log Input</button>
+                <button className="button" onClick={handleAddItem}>Add</button>
             </div>
+            <label className="checkboxLabel">
+                <input
+                    type="checkbox"
+                    checked={isSorted}
+                    onChange={handleSortChange}
+                />
+                Sort
+            </label>
             <ul className="list">
-                {items.map(item => (
+                {(isSorted ? sortedItems : items).map(item => (
                     <li key={item.key} className="listItem">{item.text}</li>  // Render list items with keys
                 ))}
             </ul>
